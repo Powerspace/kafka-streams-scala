@@ -4,11 +4,11 @@
   */
 package com.lightbend.kafka.scala.streams
 
-import org.apache.kafka.streams.KeyValue
 import org.apache.kafka.streams.kstream._
 import org.apache.kafka.streams.processor.{Processor, ProcessorContext, ProcessorSupplier}
 import ImplicitConversions._
 import FunctionConversions._
+import org.apache.kafka.streams.KeyValue
 
 import scala.collection.JavaConverters._
 
@@ -32,7 +32,11 @@ class KStreamS[K, V](val inner: KStream[K, V]) {
   }
 
   def mapValues[VR](mapper: V => VR): KStreamS[K, VR] =
-    inner.mapValues[VR](mapper(_))
+    inner.mapValues[VR](
+      new ValueMapper[V, VR] {
+        override def apply(value: V): VR = mapper(value)
+      }
+    )
 
   def flatMap[KR, VR](mapper: (K, V) => Iterable[(KR, VR)]): KStreamS[KR, VR] = {
     val kvMapper = mapper.tupled andThen (iter => iter.map(tuple2ToKeyValue).asJava)
@@ -40,7 +44,9 @@ class KStreamS[K, V](val inner: KStream[K, V]) {
   }
 
   def flatMapValues[VR](processor: V => Iterable[VR]): KStreamS[K, VR] =
-    inner.flatMapValues[VR]((v) => processor(v).asJava)
+    inner.flatMapValues[VR]( new ValueMapper[V, java.lang.Iterable[VR]] {
+      override def apply(value: V): java.lang.Iterable[VR]= processor(value).asJava
+    })
 
   def print(printed: Printed[K, V]): Unit = inner.print(printed)
 
@@ -57,35 +63,25 @@ class KStreamS[K, V](val inner: KStream[K, V]) {
     inner.to(topic, produced)
 
   //scalastyle:off null
-  def transform[K1, V1](transformerSupplier: () => Transformer[K, V, (K1, V1)],
-                        stateStoreNames: String*): KStreamS[K1, V1] = {
+    def transform[K1, V1](transformerSupplier: () => Transformer[K, V, (K1, V1)],
+                          stateStoreNames: String*): KStreamS[K1, V1] = {
 
-    val transformerSupplierJ: TransformerSupplier[K, V, KeyValue[K1, V1]] = () => {
-      val transformerS: Transformer[K, V, (K1, V1)] = transformerSupplier()
-      new Transformer[K, V, KeyValue[K1, V1]] {
-        override def transform(key: K, value: V): KeyValue[K1, V1] =
-          transformerS.transform(key, value) match {
-            case (k1, v1) => KeyValue.pair(k1, v1)
-            case _        => null
-          }
+      val transformerSupplierJ: TransformerSupplier[K, V, KeyValue[K1, V1]] = () => {
+        val transformerS: Transformer[K, V, (K1, V1)] = transformerSupplier()
+        new Transformer[K, V, KeyValue[K1, V1]] {
+          override def transform(key: K, value: V): KeyValue[K1, V1] =
+            transformerS.transform(key, value) match {
+              case (k1, v1) => KeyValue.pair(k1, v1)
+              case _        => null
+            }
 
-        override def init(context: ProcessorContext): Unit = transformerS.init(context)
+          override def init(context: ProcessorContext): Unit = transformerS.init(context)
 
-        @deprecated(
-          "Please use Punctuator functional interface at https://kafka.apache.org/10/javadoc/org/apache/kafka/streams/processor/Punctuator.html instead",
-          "0.1.3"
-        ) // scalastyle:ignore
-        override def punctuate(timestamp: Long): KeyValue[K1, V1] =
-          transformerS.punctuate(timestamp) match {
-            case (k1, v1) => KeyValue.pair[K1, V1](k1, v1)
-            case _        => null
-          }
-
-        override def close(): Unit = transformerS.close()
+          override def close(): Unit = transformerS.close()
+        }
       }
+      inner.transform(transformerSupplierJ, stateStoreNames: _*)
     }
-    inner.transform(transformerSupplierJ, stateStoreNames: _*)
-  }
   //scalastyle:on null
 
   def transformValues[VR](valueTransformerSupplier: () => ValueTransformer[V, VR],

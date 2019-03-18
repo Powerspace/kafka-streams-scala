@@ -194,7 +194,6 @@ class CMSStore[T: CMSHasher](override val name: String,
     // that parameter.
     if (root != null && loggingEnabled)
       context.register(root,
-                       loggingEnabled,
                        (_, value) =>
                          if (value == null)
                            cms = cmsMonoid.zero

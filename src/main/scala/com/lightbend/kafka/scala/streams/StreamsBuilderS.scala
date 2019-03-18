@@ -8,10 +8,10 @@ import java.util.regex.Pattern
 
 import com.lightbend.kafka.scala.streams.ImplicitConversions._
 import org.apache.kafka.common.utils.Bytes
-import org.apache.kafka.streams.kstream.{GlobalKTable, Materialized}
+import org.apache.kafka.streams.kstream.{Consumed, GlobalKTable, Materialized}
 import org.apache.kafka.streams.processor.{ProcessorSupplier, StateStore}
 import org.apache.kafka.streams.state.{KeyValueStore, StoreBuilder}
-import org.apache.kafka.streams.{Consumed, StreamsBuilder, Topology}
+import org.apache.kafka.streams.{StreamsBuilder, Topology}
 
 import scala.collection.JavaConverters._
 

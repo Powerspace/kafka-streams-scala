@@ -131,9 +131,6 @@ object ProbabilisticCountingScalaIntegrationTest
         (value, cmsState.get(value))
       }
 
-      //scalastyle:off null
-      override def punctuate(l: Long): (String, Long) = null
-      //scalastyle:on null
       override def close(): Unit = {}
     }
 
