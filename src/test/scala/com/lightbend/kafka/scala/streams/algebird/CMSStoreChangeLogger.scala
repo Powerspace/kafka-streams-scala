@@ -19,7 +19,6 @@ package algebird
 import org.apache.kafka.streams.processor.ProcessorContext
 import org.apache.kafka.streams.processor.internals.{ProcessorStateManager, RecordCollector}
 import org.apache.kafka.streams.state.StateSerdes
-import org.apache.kafka.common.header.Headers
 import org.apache.kafka.common.header.internals.RecordHeaders
 
 /**
