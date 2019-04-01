@@ -38,9 +38,3 @@ libraryDependencies ++= Seq(
 )
 
 credentials += Credentials(Path.userHome / ".ivy2" / ".credentials")
-publishTo := {
-  val nexus = "https://oss.sonatype.org/"
-  if (isSnapshot.value) Some("snapshots" at nexus + "content/repositories/snapshots")
-  else Option("releases" at nexus + "service/local/staging/deploy/maven2")
-}
-publishArtifact in Test := true
