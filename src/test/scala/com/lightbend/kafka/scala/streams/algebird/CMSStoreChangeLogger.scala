@@ -19,6 +19,7 @@ package algebird
 import org.apache.kafka.streams.processor.ProcessorContext
 import org.apache.kafka.streams.processor.internals.{ProcessorStateManager, RecordCollector}
 import org.apache.kafka.streams.state.StateSerdes
+import org.apache.kafka.common.header.internals.RecordHeaders
 
 /**
   * Copied from Kafka's [[org.apache.kafka.streams.state.internals.StoreChangeLogger]].
@@ -34,19 +35,17 @@ class CMSStoreChangeLogger[K, V](val storeName: String,
                                  val partition: Int,
                                  val serialization: StateSerdes[K, V]) {
 
-  private val topic = ProcessorStateManager.storeChangelogTopic(context.applicationId, storeName)
+  private val topic     = ProcessorStateManager.storeChangelogTopic(context.applicationId, storeName)
   private val collector = context.asInstanceOf[RecordCollector.Supplier].recordCollector
 
-  def this(storeName: String, context: ProcessorContext, serialization: StateSerdes[K, V]) {
+  def this(storeName: String, context: ProcessorContext, serialization: StateSerdes[K, V]) =
     this(storeName, context, context.taskId.partition, serialization)
-  }
 
-  def logChange(key: K, value: V, timestamp: Long) {
+  def logChange(key: K, value: V, timestamp: Long): Unit =
     if (collector != null) {
-      val keySerializer = serialization.keySerializer
+      val keySerializer   = serialization.keySerializer
       val valueSerializer = serialization.valueSerializer
-      collector.send(this.topic, key, value, this.partition, timestamp, keySerializer, valueSerializer)
+      collector.send(this.topic, key, value, new RecordHeaders, this.partition, timestamp, keySerializer, valueSerializer)
     }
-  }
 
 }

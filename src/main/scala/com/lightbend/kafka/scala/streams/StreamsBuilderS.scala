@@ -2,17 +2,16 @@
   * Copyright (C) 2018 Lightbend Inc. <https://www.lightbend.com>
   * Copyright 2017-2018 Alexis Seigneurin.
   */
-
 package com.lightbend.kafka.scala.streams
 
 import java.util.regex.Pattern
 
 import com.lightbend.kafka.scala.streams.ImplicitConversions._
 import org.apache.kafka.common.utils.Bytes
-import org.apache.kafka.streams.kstream.{GlobalKTable, Materialized}
+import org.apache.kafka.streams.kstream.{Consumed, GlobalKTable, Materialized}
 import org.apache.kafka.streams.processor.{ProcessorSupplier, StateStore}
 import org.apache.kafka.streams.state.{KeyValueStore, StoreBuilder}
-import org.apache.kafka.streams.{Consumed, StreamsBuilder, Topology}
+import org.apache.kafka.streams.{StreamsBuilder, Topology}
 
 import scala.collection.JavaConverters._
 
@@ -33,15 +32,17 @@ class StreamsBuilderS(inner: StreamsBuilder = new StreamsBuilder) {
   def table[K, V](topic: String)(implicit consumed: Consumed[K, V]): KTableS[K, V] =
     inner.table[K, V](topic, consumed)
 
-  def table[K, V](topic: String, materialized: Materialized[K, V, KeyValueStore[Bytes, Array[Byte]]])
-    (implicit consumed: Consumed[K, V]): KTableS[K, V] =
+  def table[K, V](topic: String, materialized: Materialized[K, V, KeyValueStore[Bytes, Array[Byte]]])(
+    implicit consumed: Consumed[K, V]
+  ): KTableS[K, V] =
     inner.table[K, V](topic, consumed, materialized)
 
   def globalTable[K, V](topic: String)(implicit consumed: Consumed[K, V]): GlobalKTable[K, V] =
     inner.globalTable(topic, consumed)
 
-  def globalTable[K, V](topic: String, materialized: Materialized[K, V, KeyValueStore[Bytes, Array[Byte]]])
-    (implicit consumed: Consumed[K, V]): GlobalKTable[K, V] =
+  def globalTable[K, V](topic: String, materialized: Materialized[K, V, KeyValueStore[Bytes, Array[Byte]]])(
+    implicit consumed: Consumed[K, V]
+  ): GlobalKTable[K, V] =
     inner.globalTable(topic, consumed, materialized)
 
   def addStateStore(builder: StoreBuilder[_ <: StateStore]): StreamsBuilder = inner.addStateStore(builder)
