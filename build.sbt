@@ -2,7 +2,7 @@ import Dependencies._
 
 name := "kafka-streams-scala"
 organization := "com.lightbend"
-version := "0.3.0"
+version := "0.3.1"
 scalaVersion := Versions.Scala_2_12_Version
 crossScalaVersions := Versions.CrossScalaVersions
 scalacOptions := Seq("-Xexperimental", "-unchecked", "-deprecation", "-Ywarn-unused-import")
