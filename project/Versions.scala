@@ -2,7 +2,7 @@ object Versions {
   val AlgebirdVersion     = "0.13.0"
   val ChillVersion        = "0.9.2"
   val LogbackVersion      = "1.2.3"
-  val KafkaVersion        = "2.0.0"
+  val KafkaVersion        = "2.1.1"
   val ScalaLoggingVersion = "3.5.0"
   val CuratorVersion      = "4.0.0"
   val MinitestVersion     = "2.0.0"

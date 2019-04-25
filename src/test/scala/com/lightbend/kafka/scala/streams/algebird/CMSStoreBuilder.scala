@@ -64,4 +64,8 @@ class CMSStoreBuilder[T: CMSHasher](val name: String, val serde: Serde[T]) exten
     logConfig.clear()
     this
   }
+
+  override def withCachingDisabled(): StoreBuilder[CMSStore[T]] = {
+    this
+  }
 }
