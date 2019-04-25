@@ -28,14 +28,14 @@ class KGroupedTableS[K, V](inner: KGroupedTable[K, V]) {
   def reduce(adder: (V, V) => V, subTractor: (V, V) => V): KTableS[K, V] =
     // need this explicit asReducer for Scala 2.11 or else the SAM conversion doesn't take place
     // works perfectly with Scala 2.12 though
-    inner.reduce(((v1, v2) => adder(v1, v2)).asReducer, ((v1, v2) => subTractor(v1, v2)).asReducer)
+    inner.reduce(((v1: V, v2: V) => adder(v1, v2)).asReducer, ((v1: V, v2: V) => subTractor(v1, v2)).asReducer)
 
   def reduce(adder: (V, V) => V,
              subtractor: (V, V) => V,
              materialized: Materialized[K, V, ByteArrayKVStore]): KTableS[K, V] =
     // need this explicit asReducer for Scala 2.11 or else the SAM conversion doesn't take place
     // works perfectly with Scala 2.12 though
-    inner.reduce(((v1, v2) => adder(v1, v2)).asReducer, ((v1, v2) => subtractor(v1, v2)).asReducer, materialized)
+    inner.reduce(((v1: V, v2: V) => adder(v1, v2)).asReducer, ((v1, v2) => subtractor(v1, v2)).asReducer, materialized)
 
   def aggregate[VR](initializer: () => VR, adder: (K, V, VR) => VR, subtractor: (K, V, VR) => VR): KTableS[K, VR] =
     inner.aggregate(initializer.asInitializer, adder.asAggregator, subtractor.asAggregator)

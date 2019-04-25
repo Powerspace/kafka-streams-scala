@@ -47,6 +47,7 @@ class StreamsBuilderS(inner: StreamsBuilder = new StreamsBuilder) {
 
   def addStateStore(builder: StoreBuilder[_ <: StateStore]): StreamsBuilder = inner.addStateStore(builder)
 
+  @Deprecated
   def addGlobalStore(storeBuilder: StoreBuilder[_ <: StateStore],
                      topic: String,
                      sourceName: String,
@@ -54,6 +55,12 @@ class StreamsBuilderS(inner: StreamsBuilder = new StreamsBuilder) {
                      processorName: String,
                      stateUpdateSupplier: ProcessorSupplier[_, _]): StreamsBuilder =
     inner.addGlobalStore(storeBuilder, topic, sourceName, consumed, processorName, stateUpdateSupplier)
+
+  def addGlobalStore(storeBuilder: StoreBuilder[_ <: StateStore],
+                     topic: String,
+                     consumed: Consumed[_, _],
+                     stateUpdateSupplier: ProcessorSupplier[_, _]): StreamsBuilder =
+    inner.addGlobalStore(storeBuilder, topic, consumed, stateUpdateSupplier)
 
   def build(): Topology = inner.build()
 }

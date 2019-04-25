@@ -113,11 +113,19 @@ class KStreamS[K, V](val inner: KStream[K, V]) {
     * implicit val longSerde: Serde[Long] = Serdes.Long().asInstanceOf[Serde[Long]]
     * - .groupByKey
     */
+  @Deprecated
   def groupByKey(implicit serialized: Serialized[K, V]): KGroupedStreamS[K, V] =
     inner.groupByKey(serialized)
 
+  def groupByKey(implicit grouped: Grouped[K, V]): KGroupedStreamS[K, V] =
+    inner.groupByKey(grouped)
+
+  @Deprecated
   def groupBy[KR](selector: (K, V) => KR)(implicit serialized: Serialized[KR, V]): KGroupedStreamS[KR, V] =
     inner.groupBy(selector.asKeyValueMapper, serialized)
+
+  def groupBy[KR](selector: (K, V) => KR)(implicit grouped: Grouped[KR, V]): KGroupedStreamS[KR, V] =
+    inner.groupBy(selector.asKeyValueMapper, grouped)
 
   def join[VO, VR](otherStream: KStreamS[K, VO], joiner: (V, VO) => VR, windows: JoinWindows)(
     implicit joined: Joined[K, V, VO]

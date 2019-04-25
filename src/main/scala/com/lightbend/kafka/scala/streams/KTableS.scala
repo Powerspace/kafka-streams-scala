@@ -41,8 +41,12 @@ class KTableS[K, V](val inner: KTable[K, V]) {
   def toStream[KR](mapper: (K, V) => KR): KStreamS[KR, V] =
     inner.toStream[KR](mapper.asKeyValueMapper)
 
+  @Deprecated
   def groupBy[KR, VR](selector: (K, V) => (KR, VR))(implicit serialized: Serialized[KR, VR]): KGroupedTableS[KR, VR] =
     inner.groupBy(selector.asKeyValueMapper, serialized)
+
+  def groupBy[KR, VR](selector: (K, V) => (KR, VR))(implicit grouped: Grouped[KR, VR]): KGroupedTableS[KR, VR] =
+    inner.groupBy(selector.asKeyValueMapper, grouped)
 
   def join[VO, VR](other: KTableS[K, VO], joiner: (V, VO) => VR): KTableS[K, VR] =
     inner.join[VO, VR](other.inner, joiner.asValueJoiner)
